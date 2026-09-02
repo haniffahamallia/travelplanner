@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#eaf6ff">
+<meta name="description" content="Silver Planner — modern travel planner untuk merencanakan perjalanan.">
+<title>Silver Planner — Travel Planner</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="logo"><span>✦</span><div><b>Silver Planner</b><small>Travel smarter</small></div></div>
+    <nav>
+      <button class="nav active" data-view="dashboard">⌂ <span>Dashboard</span></button>
+      <button class="nav" data-view="explore">⌕ <span>Explore</span></button>
+      <button class="nav" data-view="wishlist">♡ <span>Wishlist <i id="wishBadge">0</i></span></button>
+      <button class="nav" data-view="trips">◫ <span>My Trips</span></button>
+    </nav>
+    <div class="side-tip"><span>✈</span><b>Plan a little.<br>Travel a lot.</b><small>Simpan semua rencana perjalananmu di browser.</small></div>
+    <button class="nav" id="exportBtn">⇩ <span>Export Trip</span></button>
+  </aside>
+
+  <section class="main">
+    <header class="topbar">
+      <button class="mobile-menu" id="menuBtn">☰</button>
+      <div class="search"><span>⌕</span><input id="search" placeholder="Cari destinasi, aktivitas, atau kota..." autocomplete="off"></div>
+      <div class="top-actions">
+        <button class="circle" id="soundBtn" title="Sound">♬</button>
+        <button class="circle" id="themeBtn" title="Dark mode">☼</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="dashboard" class="view active-view">
+        <div class="hero">
+          <div><p class="eyebrow">YOUR NEXT ADVENTURE</p><h1>Plan your trip,<br><em>beautifully.</em></h1><p>Temukan destinasi, susun itinerary, simpan wishlist, dan buat perjalananmu lebih teratur.</p>
+            <div class="hero-actions"><button class="primary" data-scroll="explore">Explore destinations →</button><button class="ghost" id="demoTripBtn">＋ Quick trip</button></div>
+          </div>
+          <div class="hero-art"><div class="sun"></div><div class="mountain m1"></div><div class="mountain m2"></div><div class="cloud c1">☁</div><div class="cloud c2">☁</div><div class="plane">✈</div></div>
+        </div>
+
+        <div class="stats">
+          <div><span>✈</span><b id="tripStat">0</b><small>Saved trips</small></div>
+          <div><span>♡</span><b id="wishStat">0</b><small>Wishlist</small></div>
+          <div><span>✓</span><b id="taskStat">0</b><small>Trip tasks</small></div>
+          <div><span>◷</span><b id="daysStat">0</b><small>Days planned</small></div>
+        </div>
+
+        <div class="section-title"><div><p class="eyebrow">DISCOVER</p><h2>Popular escapes</h2></div><button class="text-btn" data-view="explore">View all →</button></div>
+        <div class="destination-grid" id="dashDestinations"></div>
+
+        <div class="bottom-grid">
+          <div class="panel">
+            <div class="panel-head"><div><p class="eyebrow">TRIP INSIGHT</p><h3>Travel budget</h3></div><span class="badge">Live</span></div>
+            <div class="chart-wrap"><canvas id="budgetChart" height="160"></canvas></div>
+          </div>
+          <div class="panel checklist"><div class="panel-head"><div><p class="eyebrow">READY CHECK</p><h3>Before you go</h3></div><span id="checkProgress">0%</span></div>
+            <label><input type="checkbox" data-task> Check documents</label><label><input type="checkbox" data-task> Prepare essentials</label><label><input type="checkbox" data-task> Confirm accommodation</label><label><input type="checkbox" data-task> Save offline map</label>
+          </div>
+        </div>
+      </section>
+
+      <section id="explore" class="view">
+        <div class="page-head"><div><p class="eyebrow">EXPLORE</p><h1>Find your next escape.</h1><p>Pilih destinasi yang paling cocok dengan vibe perjalananmu.</p></div><div class="filter-row"><select id="categoryFilter"><option value="all">All vibes</option><option value="beach">Beach</option><option value="nature">Nature</option><option value="city">City</option><option value="culture">Culture</option></select><select id="sortFilter"><option value="popular">Popular</option><option value="priceLow">Budget low → high</option><option value="priceHigh">Budget high → low</option></select></div></div>
+        <div class="destination-grid" id="exploreDestinations"></div>
+      </section>
+
+      <section id="wishlist" class="view"><div class="page-head"><div><p class="eyebrow">SAVED FOR LATER</p><h1>Your wishlist.</h1><p>Destinasi favoritmu ada di sini.</p></div></div><div class="destination-grid" id="wishlistGrid"></div></section>
+
+      <section id="trips" class="view"><div class="page-head"><div><p class="eyebrow">YOUR PLANS</p><h1>My trips.</h1><p>Semua trip tersimpan di browser ini.</p></div><button class="primary" id="newTripBtn">＋ New trip</button></div><div id="tripsGrid" class="trips-grid"></div></section>
+    </main>
+    <footer><b>Silver Planner</b><span>Lightweight · Responsive · GitHub Pages ready</span></footer>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal" id="detailModal"><div class="modal-box"><button class="close" data-close>×</button><div id="detailContent"></div></div></div>
+<div class="modal" id="cartModal"><div class="modal-box"><button class="close" data-close>×</button><div class="modal-title"><p class="eyebrow">TRIP CART</p><h2>Your selected escapes</h2></div><div id="cartContent"></div></div></div>
+<div class="modal" id="checkoutModal"><div class="modal-box"><button class="close" data-close>×</button><div class="modal-title"><p class="eyebrow">CHECKOUT</p><h2>Create your trip</h2></div><form id="checkoutForm"><div class="form-grid"><label>Trip name<input name="name" required placeholder="Summer Escape"></label><label>Start date<input name="date" type="date" required></label><label>Travelers<input name="travelers" type="number" min="1" value="2" required></label><label>Voucher<input name="voucher" placeholder="SILVER10"></label></div><div class="checkout-total" id="checkoutTotal"></div><button class="primary wide" type="submit">Save trip & continue ✦</button><button class="wa-btn" type="button" id="waBtn">Order / ask via WhatsApp</button></form></div></div>
+
+<script src="app.js"></script>
+</body>
+</html>

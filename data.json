@@ -1,0 +1,107 @@
+{
+  "app": "Silver Planner",
+  "version": "1.0.0",
+  "currency": "IDR",
+  "features": [
+    "dashboard",
+    "search",
+    "filters",
+    "wishlist",
+    "trip cart",
+    "checkout",
+    "voucher",
+    "promo-ready",
+    "dark mode",
+    "localStorage",
+    "sound feedback",
+    "budget chart",
+    "export JSON",
+    "responsive mobile",
+    "WhatsApp-ready"
+  ],
+  "promo": {
+    "code": "SILVER10",
+    "discount": 10,
+    "description": "Diskon demo 10% untuk voucher SILVER10"
+  },
+  "destinations": [
+    {
+      "id": "bali",
+      "name": "Bali",
+      "country": "Indonesia",
+      "vibe": "Tropical Escape",
+      "category": "beach",
+      "emoji": "🌴",
+      "days": 5,
+      "price": 3200000,
+      "rating": 4.9,
+      "bestFor": "Beach, sunset & culture",
+      "description": "Pulau tropis dengan pantai, sunset, budaya, kuliner, dan banyak pilihan aktivitas."
+    },
+    {
+      "id": "kyoto",
+      "name": "Kyoto",
+      "country": "Japan",
+      "vibe": "Quiet Culture",
+      "category": "culture",
+      "emoji": "⛩️",
+      "days": 6,
+      "price": 6800000,
+      "rating": 4.8,
+      "bestFor": "Temples & slow travel",
+      "description": "Kota penuh kuil, taman, street food, dan suasana tradisional Jepang yang tenang."
+    },
+    {
+      "id": "raja",
+      "name": "Raja Ampat",
+      "country": "Indonesia",
+      "vibe": "Ocean Wonder",
+      "category": "nature",
+      "emoji": "🐠",
+      "days": 7,
+      "price": 7900000,
+      "rating": 4.9,
+      "bestFor": "Snorkeling & nature",
+      "description": "Surga laut dengan pulau karst, air jernih, dan panorama alam yang luar biasa."
+    },
+    {
+      "id": "seoul",
+      "name": "Seoul",
+      "country": "South Korea",
+      "vibe": "City Energy",
+      "category": "city",
+      "emoji": "🏙️",
+      "days": 5,
+      "price": 6100000,
+      "rating": 4.7,
+      "bestFor": "Food, fashion & city",
+      "description": "Kota modern dengan perpaduan K-culture, kuliner, shopping, dan sejarah."
+    },
+    {
+      "id": "labuan",
+      "name": "Labuan Bajo",
+      "country": "Indonesia",
+      "vibe": "Island Adventure",
+      "category": "nature",
+      "emoji": "⛵",
+      "days": 4,
+      "price": 4500000,
+      "rating": 4.8,
+      "bestFor": "Island hopping",
+      "description": "Gerbang petualangan menuju pulau-pulau eksotis dan pemandangan laut Indonesia."
+    },
+    {
+      "id": "singapore",
+      "name": "Singapore",
+      "country": "Singapore",
+      "vibe": "Smart City",
+      "category": "city",
+      "emoji": "🌆",
+      "days": 3,
+      "price": 3900000,
+      "rating": 4.6,
+      "bestFor": "Short city break",
+      "description": "Destinasi ringkas untuk city break dengan kuliner, taman, dan atraksi modern."
+    }
+  ]
+}

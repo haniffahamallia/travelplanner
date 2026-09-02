@@ -1,0 +1,45 @@
+const DATA_URL="data.json";
+const state={data:null,wishlist:JSON.parse(localStorage.getItem("silverWishlist")||"[]"),cart:JSON.parse(localStorage.getItem("silverCart")||"[]"),trips:JSON.parse(localStorage.getItem("silverTrips")||"[]"),dark:localStorage.getItem("silverDark")==="1",sound:true,query:""};
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+fetch(DATA_URL).then(r=>r.json()).then(data=>{state.data=data;init()}).catch(()=>toast("data.json tidak ditemukan."));
+function init(){if(state.dark)document.body.classList.add("dark");renderAll();bind();updateStats()}
+function money(n){return new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(n)}
+function save(){localStorage.setItem("silverWishlist",JSON.stringify(state.wishlist));localStorage.setItem("silverCart",JSON.stringify(state.cart));localStorage.setItem("silverTrips",JSON.stringify(state.trips))}
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(window.tt);window.tt=setTimeout(()=>t.classList.remove("show"),2200)}
+function renderCard(d){const liked=state.wishlist.includes(d.id);return `<article class="dest"><div class="dest-img"><small>${d.vibe}</small><span>${d.emoji}</span><button class="heart ${liked?"on":""}" data-wish="${d.id}">${liked?"♥":"♡"}</button></div><div class="dest-body"><h3>${d.name}</h3><p>${d.country} · ${d.days} days · ${d.rating} ★</p><div class="dest-foot"><span class="price">${money(d.price)}</span><div class="mini-actions"><button class="mini" data-detail="${d.id}">Detail</button><button class="mini" data-cart="${d.id}">＋ Trip</button></div></div></div></article>`}
+function renderDestinations(target,arr){$(target).innerHTML=arr.length?arr.map(renderCard).join(""):`<div class="empty">Tidak ada destinasi yang cocok ✈</div>`}
+function filtered(){let a=state.data.destinations.filter(d=>{const q=state.query.toLowerCase();return(!q||`${d.name} ${d.country} ${d.vibe}`.toLowerCase().includes(q))});const cat=$("#categoryFilter")?.value||"all";if(cat!=="all")a=a.filter(d=>d.category===cat);const sort=$("#sortFilter")?.value||"popular";return a.sort((x,y)=>sort==="priceLow"?x.price-y.price:sort==="priceHigh"?y.price-x.price:y.rating-x.rating)}
+function renderAll(){const a=state.data.destinations;renderDestinations("#dashDestinations",a.slice(0,3));renderDestinations("#exploreDestinations",filtered());const w=a.filter(d=>state.wishlist.includes(d.id));renderDestinations("#wishlistGrid",w);renderTrips();updateStats()}
+function updateStats(){if(!state.data)return;$("#wishBadge").textContent=state.wishlist.length;$("#wishStat").textContent=state.wishlist.length;$("#tripStat").textContent=state.trips.length;const tasks=[...$$("[data-task]")].filter(x=>x.checked).length;$("#taskStat").textContent=tasks;$("#checkProgress").textContent=Math.round(tasks/4*100)+"%";const days=state.cart.reduce((s,id)=>s+(state.data.destinations.find(d=>d.id===id)?.days||0),0);$("#daysStat").textContent=days}
+function renderTrips(){const el=$("#tripsGrid");if(!state.trips.length){el.innerHTML=`<div class="empty">Belum ada trip tersimpan.<br>Klik <b>＋ Trip</b> pada destinasi favoritmu.</div>`;return}el.innerHTML=state.trips.map(t=>`<article class="trip-card"><p class="eyebrow">TRIP PLAN</p><h3>${t.name}</h3><p>${t.date} · ${t.travelers} traveler${t.travelers>1?"s":""}</p><small>${t.destinations.length} destination · ${money(t.total)}</small><div class="trip-bar"><span></span></div><button class="mini" data-remove-trip="${t.id}">Delete trip</button></article>`).join("")}
+function navigate(view){$$(".view").forEach(v=>v.classList.remove("active-view"));$("#"+view).classList.add("active-view");$$(".nav").forEach(n=>n.classList.toggle("active",n.dataset.view===view));window.scrollTo({top:0,behavior:"smooth"});$("#sidebar").classList.remove("open");if(view==="explore")renderDestinations("#exploreDestinations",filtered())}
+function playClick(){if(!state.sound)return;try{const c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=520;g.gain.value=.025;o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+.06)}catch{}}
+function bind(){
+ $$(".nav[data-view]").forEach(n=>n.onclick=()=>navigate(n.dataset.view));
+ $$("[data-view]").forEach(n=>n.onclick=()=>navigate(n.dataset.view));
+ $("#search").oninput=e=>{state.query=e.target.value;renderDestinations("#exploreDestinations",filtered());navigate("explore")};
+ $("#categoryFilter").onchange=()=>renderDestinations("#exploreDestinations",filtered());$("#sortFilter").onchange=()=>renderDestinations("#exploreDestinations",filtered());
+ $("#themeBtn").onclick=()=>{state.dark=!state.dark;document.body.classList.toggle("dark",state.dark);localStorage.setItem("silverDark",state.dark?"1":"0")};
+ $("#soundBtn").onclick=()=>{state.sound=!state.sound;$("#soundBtn").textContent=state.sound?"♬":"🔇"};
+ $("#menuBtn").onclick=()=>$("#sidebar").classList.toggle("open");
+ document.body.addEventListener("click",e=>{
+   const w=e.target.closest("[data-wish]"),c=e.target.closest("[data-cart]"),d=e.target.closest("[data-detail]"),r=e.target.closest("[data-remove-trip]");
+   if(w){const id=w.dataset.wish;state.wishlist=state.wishlist.includes(id)?state.wishlist.filter(x=>x!==id):[...state.wishlist,id];save();renderAll();toast(state.wishlist.includes(id)?"Added to wishlist ♥":"Removed from wishlist");playClick()}
+   if(c){state.cart.push(c.dataset.cart);save();openCart();toast("Destination added to trip ✦");playClick()}
+   if(d)openDetail(d.dataset.detail);
+   if(r){state.trips=state.trips.filter(t=>t.id!==r.dataset.removeTrip);save();renderTrips();updateStats();toast("Trip deleted")}
+ });
+ $$("[data-close]").forEach(b=>b.onclick=()=>b.closest(".modal").classList.remove("open"));
+ $("#newTripBtn").onclick=()=>openCart();$("#demoTripBtn").onclick=()=>{state.cart=["bali","kyoto"];save();openCart()};
+ $("#checkoutForm").onsubmit=e=>{e.preventDefault();const f=new FormData(e.target),voucher=(f.get("voucher")||"").toUpperCase(),discount=voucher==="SILVER10"?.1:0,total=cartTotal()*(1-discount);state.trips.unshift({id:Date.now().toString(),name:f.get("name"),date:f.get("date"),travelers:+f.get("travelers"),destinations:[...state.cart],total:Math.round(total)});state.cart=[];save();e.target.closest(".modal").classList.remove("open");renderAll();toast("Trip berhasil disimpan ✨");navigate("trips")};
+ $("#waBtn").onclick=()=>toast("Tambahkan nomor WhatsApp kamu di app.js pada bagian WHATSAPP_NUMBER.");
+ $$("[data-task]").forEach(x=>x.onchange=updateStats);
+ $("#exportBtn").onclick=exportTrips;
+}
+function openDetail(id){const d=state.data.destinations.find(x=>x.id===id);$("#detailContent").innerHTML=`<div class="detail-big">${d.emoji}</div><p class="eyebrow">${d.vibe.toUpperCase()}</p><div class="detail-meta"><h2>${d.name}</h2><b>${money(d.price)}</b></div><p class="detail-copy">${d.description}</p><p class="detail-copy">✦ ${d.days} hari &nbsp; · &nbsp; ★ ${d.rating} rating &nbsp; · &nbsp; ${d.bestFor}</p><button class="primary wide" onclick="addFromDetail('${d.id}')">＋ Add to trip</button>`;$("#detailModal").classList.add("open")}
+function addFromDetail(id){state.cart.push(id);save();$("#detailModal").classList.remove("open");openCart();toast("Added to trip ✦")}
+function cartTotal(){return state.cart.reduce((s,id)=>s+(state.data.destinations.find(d=>d.id===id)?.price||0),0)}
+function openCart(){const grouped={};state.cart.forEach(id=>grouped[id]=(grouped[id]||0)+1);const entries=Object.entries(grouped);$("#cartContent").innerHTML=entries.length?`${entries.map(([id,q])=>{const d=state.data.destinations.find(x=>x.id===id);return `<div class="cart-row"><span>${d.emoji} ${d.name} × ${q}</span><b>${money(d.price*q)}</b></div>`}).join("")}<div class="checkout-total">Estimated total · ${money(cartTotal())}</div><button class="primary wide" id="goCheckout">Checkout →</button>`:`<div class="empty">Trip cart masih kosong ✈</div>`;$("#cartModal").classList.add("open");$("#goCheckout")?.addEventListener("click",()=>{if(!state.cart.length)return;$("#cartModal").classList.remove("open");$("#checkoutTotal").textContent=`Estimated total · ${money(cartTotal())}`;$("#checkoutModal").classList.add("open")})}
+function exportTrips(){const blob=new Blob([JSON.stringify({app:"Silver Planner",exportedAt:new Date().toISOString(),trips:state.trips},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="silver-planner-trips.json";a.click();URL.revokeObjectURL(a.href);toast("Trip data exported ✓")}
+window.addEventListener("keydown",e=>{if(e.key==="Escape")$$(".modal.open").forEach(m=>m.classList.remove("open"))});
+window.addEventListener("load",()=>{const c=$("#budgetChart"),ctx=c?.getContext("2d");if(!ctx)return;const vals=[32,55,42,76,61,88,70],w=c.width=c.clientWidth*2,h=c.height=160*2;ctx.scale(2,2);ctx.lineWidth=3;ctx.strokeStyle="#70b9e5";ctx.beginPath();vals.forEach((v,i)=>{const x=i*(c.clientWidth/(vals.length-1)),y=135-v; i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke()})
